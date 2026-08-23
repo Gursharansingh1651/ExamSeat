@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ExamSeat student portal">
+  <title>ExamSeat | Student portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="role-page student-page">
+  <header class="student-topbar">
+    <a class="brand brand--dark" href="#home" data-view="home"><span class="brand-mark" aria-hidden="true"><i></i><b>✓</b></span><span><strong>Exam</strong>Seat</span></a>
+    <nav class="student-nav" aria-label="Student navigation">
+      <a class="student-nav-link active" href="#home" data-view="home">Home</a>
+      <a class="student-nav-link" href="#find-my-seat" data-view="find-my-seat">Find My Seat</a>
+      <a class="student-nav-link" href="#exam-information" data-view="exam-information">Exam Information</a>
+      <a class="student-nav-link switch-link" href="index.html">⇄ Switch Role</a>
+    </nav>
+  </header>
+  <main class="student-main">
+    <section class="student-view active" id="home"><div class="student-hero"><div><p class="eyebrow">Student portal</p><h1>Your exam seat, made clear.</h1><p>Find your room and seat as soon as your teacher publishes the seating plan.</p><button class="button button-primary" data-go-to="find-my-seat">Find my seat →</button></div><div class="student-hero-mark" aria-hidden="true"><span>✓</span></div></div><article class="student-help"><span class="help-icon">i</span><div><h2>Ready when your plan is published</h2><p>Keep your Student ID ready, then use Find My Seat to view your allocated room and seat.</p></div></article></section>
+    <section class="student-view" id="find-my-seat" hidden><div class="student-page-heading"><p class="eyebrow">Seat finder</p><h1>Find my seat</h1><p>Enter the details provided to your institution.</p></div><form class="seat-finder panel" id="seatFinder" novalidate><div class="form-stack"><label for="studentId">Student ID<input id="studentId" name="studentId" type="text" placeholder="e.g. 2026-CS-014" required></label><label for="studentName">Full name<input id="studentName" name="studentName" type="text" placeholder="e.g. Rahul Sharma" required></label><label for="studentExam">Examination<select id="studentExam" name="studentExam" required><option value="">Select your examination</option><option value="mid-term">Mid-Term Examination</option></select></label></div><p class="form-message" id="formMessage" aria-live="polite"></p><button class="button button-primary button-wide" type="submit">Find my seat →</button></form><section class="seat-result panel" id="seatResult" hidden aria-live="polite"><p class="eyebrow">Seat found</p><h2>Your examination seat</h2><div class="result-grid"><div><span>Student</span><strong id="resultStudent">—</strong></div><div><span>Examination</span><strong id="resultExam">—</strong></div><div class="result-emphasis"><span>Room</span><strong id="resultRoom">—</strong></div><div class="result-emphasis"><span>Seat</span><strong id="resultSeat">—</strong></div></div><p class="result-note">Your seat has been allocated. Please arrive at the room shown above.</p><button class="button button-primary result-action" id="viewVisualisation" type="button">View Seat Visualisation</button></section></section>
+    <section class="student-view" id="seat-visualisation" hidden><div class="visualisation-heading"><button class="back-button" id="backToResult" type="button">← Back to seating details</button><div class="student-page-heading"><p class="eyebrow">Room visualisation</p><h1>Your seat in the room</h1><p id="visualisationSummary">Your allocated seat is highlighted below.</p></div></div><section class="seat-map panel" aria-labelledby="seatMapTitle"><div class="seat-map-heading"><div><h2 id="seatMapTitle">Room <span id="mapRoom">—</span></h2><p>Front of examination room</p></div><span class="seat-legend"><i></i>Your assigned seat</span></div><div class="exam-desk">Invigilator's desk / board</div><div class="seat-grid" id="seatMap" aria-label="Examination room seat map"></div><p class="map-note">Please take the highlighted seat when you enter the room.</p></section></section>
+    <section class="student-view" id="exam-information" hidden><div class="student-page-heading"><p class="eyebrow">Your examination</p><h1>Exam information</h1><p>Important details will be published here by your teacher.</p></div><article class="panel empty-table"><span class="empty-icon">▤</span><h3>No examination published yet</h3><p>Check back once your teacher has created and published the seating plan.</p></article></section>
+  </main>
+  <script src="student.js"></script>
+</body>
+</html>
