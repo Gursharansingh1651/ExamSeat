@@ -2526,6 +2526,163 @@ if (workspaceSaveRooms) {
   );
 }
 
+const studentJsonFile =
+  document.getElementById(
+    "studentJsonFile"
+  );
+
+/* JSON STUDENT IMPORT */
+
+if (studentJsonFile) {
+
+  studentJsonFile.addEventListener(
+    "change",
+    function (event) {
+
+      const file =
+        event.target.files[0];
+
+
+      if (!file) {
+        return;
+      }
+
+
+      const reader =
+        new FileReader();
+
+
+      reader.onload =
+        function () {
+
+          try {
+
+            const importedStudents =
+              JSON.parse(
+                reader.result
+              );
+
+
+            if (
+              !Array.isArray(
+                importedStudents
+              )
+            ) {
+
+              alert(
+                "The JSON file must contain an array of students."
+              );
+
+              return;
+
+            }
+
+
+            const validStudents =
+              importedStudents.filter(
+                function (student) {
+
+                  return (
+                    student &&
+                    student.name &&
+                    (
+                      student.rollNo ||
+                      student.studentId
+                    ) &&
+                    student.subject &&
+                    student.section
+                  );
+
+                }
+              );
+
+
+            if (
+              validStudents.length !==
+              importedStudents.length
+            ) {
+
+              alert(
+                "Some students were skipped because required fields are missing."
+              );
+
+            }
+
+
+            const existingStudents =
+              getStudents();
+
+
+            const studentsToSave =
+              existingStudents.concat(
+                validStudents.map(
+                  function (student) {
+
+                    return {
+
+                      id:
+                        student.id ||
+                        `student-${Date.now()}-${Math.random()
+                          .toString(36)
+                          .slice(2, 8)}`,
+
+                      name:
+                        student.name,
+
+                      studentId:
+                        student.studentId ||
+                        student.rollNo,
+
+                      subject:
+                        student.subject,
+
+                      section:
+                        student.section
+
+                    };
+
+                  }
+                )
+              );
+
+
+            saveStudents(
+              studentsToSave
+            );
+
+
+            alert(
+              `${validStudents.length} student${
+                validStudents.length === 1
+                  ? ""
+                  : "s"
+              } imported successfully.`
+            );
+
+
+            event.target.value = "";
+
+
+          } catch (error) {
+
+            alert(
+              "The selected file contains invalid JSON."
+            );
+
+          }
+
+        };
+
+
+      reader.readAsText(
+        file
+      );
+
+    }
+  );
+
+}
+
 
 /* =========================================================
    SEATING PLAN EVENTS
