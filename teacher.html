@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="ExamSeat teacher workspace"><title>ExamSeat | Teacher workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="styles.css">
+</head>
+<body class="role-page teacher-page">
+  <div class="app-shell"><aside class="sidebar" id="teacherSidebar" aria-label="Teacher navigation"><a class="brand" href="#dashboard" data-view="dashboard"><span class="brand-mark" aria-hidden="true"><i></i><b>✓</b></span><span><strong>Exam</strong>Seat</span></a><div class="role-badge">Teacher workspace</div><p class="nav-label">Workspace</p>
+    <nav class="nav-links"><a class="nav-link active" href="#dashboard" data-view="dashboard"><span>▦</span>Dashboard</a><a class="nav-link" href="#examinations" data-view="examinations"><span>▤</span>Examinations</a><a class="nav-link" href="#students" data-view="students"><span>♙</span>Students</a><a class="nav-link" href="#rooms" data-view="rooms"><span>▥</span>Rooms</a><a class="nav-link" href="#seating-plans" data-view="seating-plans"><span>▧</span>Seating Plans</a></nav>
+    <a class="switch-role" href="index.html">⇄ Switch role</a><div class="sidebar-footer"><span class="status-dot"></span>ST1 Prototype</div></aside>
+    <div class="page-area"><header class="topbar"><button class="menu-button" id="menuButton" type="button" aria-label="Open navigation" aria-expanded="false">☰</button><div><p class="eyebrow">Teacher workspace</p><h1 id="pageTitle">Dashboard</h1></div><span class="profile-button" aria-label="Teacher">T</span><button
+  type="button"
+  class="button button-secondary"
+  onclick="logoutExamSeat()"
+>
+  Logout
+</button></header><main class="main-content">
+<section class="screen active" id="dashboard" data-title="Dashboard"><div class="hero-row"><div><p class="eyebrow">Overview</p><h2>Plan every exam with confidence.</h2><p class="muted">Create exams, prepare rooms, and review seating plans in one workspace.</p></div><button class="button button-primary" type="button" data-go-to="create-examination">+ Create examination</button></div><div class="stats-grid"><article class="stat-card"><span class="stat-icon blue">♙</span><div><p>Students</p><strong id="dashboardStudentCount">0</strong><small id="dashboardStudentMeta">Ready to assign</small></div></article><article class="stat-card"><span class="stat-icon blue">▥</span><div><p>Rooms</p><strong id="dashboardRoomCount">0</strong><small id="dashboardRoomMeta">Not configured</small></div></article><article class="stat-card"><span class="stat-icon green">✓</span><div><p>Available seats</p><strong id="dashboardAvailableSeats">0</strong><small id="dashboardSeatMeta">Awaiting setup</small></div></article><article class="stat-card"><span class="stat-icon red">!</span><div><p>Conflicts</p><strong id="dashboardConflictCount">0</strong><small id="dashboardConflictMeta">No plan generated</small></div></article></div><article class="panel"><div class="panel-heading"><div><h3>Getting started</h3><p>Complete the setup before generating a seating plan.</p></div></div><ol class="checklist"><li><span class="step-number">1</span><span><strong>Create an examination</strong><small>Set the name, date, and duration.</small></span><button class="text-button" data-go-to="examinations">Open</button></li><li><span class="step-number">2</span><span><strong>Add students and rooms</strong><small>Prepare candidates and capacity.</small></span><button class="text-button" data-go-to="students">Open</button></li><li><span class="step-number">3</span><span><strong>Generate seating</strong><small>Review allocations and conflicts.</small></span><button class="text-button" data-go-to="seating-plans">Open</button></li></ol></article></section>
+      <section class="screen" id="examinations" data-title="Examinations" hidden><div class="section-heading"><div><p class="eyebrow">Configuration</p><h2>Examinations</h2><p class="muted">Create and manage the exam details used in your seating plans.</p></div><button class="button button-primary" type="button" data-go-to="create-examination">+ Create Examination</button></div><p class="success-banner" id="examinationSuccess" hidden aria-live="polite"></p><div class="examination-list" id="examinationList" aria-live="polite"></div><article class="panel empty-table" id="examinationEmpty"><span class="empty-icon">▤</span><h3>No examinations yet</h3><p>Create your first examination to start preparing the seating plan.</p><button class="button button-primary" type="button" data-go-to="create-examination">+ Create Examination</button></article></section>
+      <section class="screen" id="create-examination" data-title="Create Examination" hidden><div class="form-page-heading"><button class="back-button" id="cancelCreateTop" type="button">← Back to examinations</button><p class="eyebrow">New examination</p><h2>Create examination</h2><p class="muted">Add the core details now. Students, rooms, rules, and seating plans can be associated later.</p></div><form class="panel examination-form" id="examinationForm" novalidate><div class="form-grid"><label for="examName">Examination Name <span class="required-mark">*</span><input id="examName" name="name" type="text" placeholder="e.g. Mid-Term Examination" required><small class="field-error" id="examNameError"></small></label><label for="examSubject">Subject <span class="required-mark">*</span><input id="examSubject" name="subject" type="text" placeholder="e.g. Data Structures" required><small class="field-error" id="examSubjectError"></small></label><label for="examDate">Date <span class="required-mark">*</span><input id="examDate" name="date" type="date" required><small class="field-error" id="examDateError"></small></label><label for="examStartTime">Start Time <span class="required-mark">*</span><input id="examStartTime" name="startTime" type="time" required><small class="field-error" id="examStartTimeError"></small></label><label for="examDuration">Duration <span class="required-mark">*</span><input id="examDuration" name="duration" type="text" placeholder="e.g. 2 hours" required><small class="field-error" id="examDurationError"></small></label><label class="form-full" for="examDescription">Description <span class="optional-label">Optional</span><textarea id="examDescription" name="description" rows="4" placeholder="Add any instructions or notes for this examination."></textarea></label></div><p class="form-message" id="examFormMessage" aria-live="polite"></p><div class="form-actions"><button class="button button-secondary" id="cancelCreate" type="button">Cancel</button><button class="button button-primary" type="submit">Create Examination</button></div></form></section>
+      <section class="screen" id="students" data-title="Students" hidden>
+
+  <div class="section-heading">
+
+    <div>
+      <p class="eyebrow">Candidate records</p>
+
+      <h2>Students</h2>
+
+      <p class="muted">
+        Add and manage students before creating the seating arrangement.
+      </p>
+    </div>
+
+    <button
+      class="button button-primary"
+      type="button"
+      data-go-to="add-student"
+    >
+      + Add Student
+    </button>
+
+  </div>
+
+
+  <!-- SEARCH -->
+
+  <div class="student-toolbar">
+
+    <div class="search-box">
+
+      <span aria-hidden="true">⌕</span>
+
+      <input
+        id="studentSearch"
+        type="search"
+        placeholder="Search by student ID or name..."
+        autocomplete="off"
+      >
+
+    </div>
+
+    <span
+      class="student-count"
+      id="studentCount"
+    >
+      0 students
+    </span>
+
+  </div>
+
+
+  <!-- STUDENT LIST -->
+
+  <div
+    class="student-list"
+    id="studentList"
+    aria-live="polite"
+  ></div>
+
+
+  <!-- EMPTY STATE -->
+
+  <article
+    class="panel empty-table"
+    id="studentEmpty"
+  >
+
+    <span class="empty-icon">♙</span>
+
+    <h3>No students added yet</h3>
+
+    <p>
+      Add your first student to begin preparing the examination seating.
+    </p>
+
+    <button
+      class="button button-primary"
+      type="button"
+      data-go-to="add-student"
+    >
+      + Add Student
+    </button>
+
+  </article>
+
+
+  <!-- NO SEARCH RESULTS -->
+
+  <article
+    class="panel empty-table"
+    id="studentNoResults"
+    hidden
+  >
+
+    <span class="empty-icon">⌕</span>
+
+    <h3>No students found</h3>
+
+    <p>
+      Try searching with a different student ID or name.
+    </p>
+
+  </article>
+
+</section>
+
+
+<!-- =====================================================
+     ADD STUDENT
+     ===================================================== -->
+
+<section
+  class="screen"
+  id="add-student"
+  data-title="Add Student"
+  hidden
+>
+
+  <div class="form-page-heading">
+
+    <button
+      class="back-button"
+      id="cancelStudentTop"
+      type="button"
+    >
+      ← Back to students
+    </button>
+
+    <p class="eyebrow">Candidate record</p>
+
+    <h2>Add student</h2>
+
+    <p class="muted">
+      Add the student's basic academic information.
+    </p>
+
+  </div>
+
+
+  <form
+    class="panel student-form"
+    id="studentForm"
+    novalidate
+  >
+
+    <div class="form-grid">
+
+
+      <!-- STUDENT ID -->
+
+      <label for="studentId">
+
+        Student ID
+        <span class="required-mark">*</span>
+
+        <input
+          id="studentId"
+          name="studentId"
+          type="text"
+          placeholder="e.g. 102"
+          required
+        >
+
+        <small
+          class="field-error"
+          id="studentIdError"
+        ></small>
+
+      </label>
+
+
+      <!-- NAME -->
+
+      <label for="studentName">
+
+        Student Name
+        <span class="required-mark">*</span>
+
+        <input
+          id="studentName"
+          name="studentName"
+          type="text"
+          placeholder="e.g. Rahul Singh"
+          required
+        >
+
+        <small
+          class="field-error"
+          id="studentNameError"
+        ></small>
+
+      </label>
+
+
+      <!-- COURSE -->
+
+      <label for="studentCourse">
+
+        Course / Class
+        <span class="required-mark">*</span>
+
+        <input
+          id="studentCourse"
+          name="course"
+          type="text"
+          placeholder="e.g. CSE-AIML"
+          required
+        >
+
+        <small
+          class="field-error"
+          id="studentCourseError"
+        ></small>
+
+      </label>
+
+      <!-- SUBJECT -->
+
+<label for="studentSubject">
+
+  Subject
+  <span class="required-mark">*</span>
+
+  <input
+    id="studentSubject"
+    name="subject"
+    type="text"
+    placeholder="e.g. Mathematics"
+    required
+  >
+
+  <small
+    class="field-error"
+    id="studentSubjectError"
+  ></small>
+
+</label>
+
+
+      <!-- OPTIONAL SECTION -->
+
+      <label for="studentSection">
+
+        Section
+
+        <span class="optional-label">
+          Optional
+        </span>
+
+        <input
+          id="studentSection"
+          name="section"
+          type="text"
+          placeholder="e.g. G10"
+        >
+
+      </label>
+
+    </div>
+
+
+    <p
+      class="form-message"
+      id="studentFormMessage"
+      aria-live="polite"
+    ></p>
+
+
+    <div class="form-actions">
+
+      <button
+        class="button button-secondary"
+        id="cancelStudent"
+        type="button"
+      >
+        Cancel
+      </button>
+
+      <button
+        class="button button-primary"
+        type="submit"
+      >
+        Add Student
+      </button>
+
+    </div>
+
+  </form>
+
+</section>
+
+<section class="screen" id="examination-workspace" data-title="Manage Examination Students" hidden>
+  <div class="form-page-heading">
+    <button class="back-button" type="button" data-go-to="examinations">← Back to examinations</button>
+    <p class="eyebrow">Examination workspace</p>
+    <h2 id="workspaceExamName">Examination</h2>
+    <p class="muted" id="workspaceExamMeta"></p>
+  </div>
+
+  <div class="workspace-summary-grid">
+    <article class="stat-card">
+      <span class="stat-icon blue">♙</span>
+      <div>
+        <p>Available students</p>
+        <strong id="workspaceStudentCount">0</strong>
+        <small>Student records</small>
+      </div>
+    </article>
+
+    <article class="stat-card">
+      <span class="stat-icon green">✓</span>
+      <div>
+        <p>Assigned students</p>
+        <strong id="workspaceSelectedCount">0 selected</strong>
+        <small>For this examination</small>
+      </div>
+    </article>
+</div>
+
+  <article class="panel workspace-panel">
+    <div class="panel-heading workspace-panel-heading">
+      <div>
+        <h3>Select students</h3>
+        <p>Choose the students who will take this examination.</p>
+      </div>
+
+      <label class="workspace-select-all">
+        <input id="workspaceSelectAll" type="checkbox">
+        Select all
+      </label>
+    </div>
+
+    <div class="student-toolbar workspace-toolbar">
+      <div class="search-box">
+        <span aria-hidden="true">⌕</span>
+        <input
+          id="workspaceStudentSearch"
+          type="search"
+          placeholder="Search by student ID, name, or course..."
+          autocomplete="off"
+        >
+      </div>
+    </div>
+
+    <div
+      class="workspace-student-list"
+      id="workspaceStudentList"
+      aria-live="polite"
+    ></div>
+
+    <article class="panel empty-table workspace-empty" id="workspaceStudentEmpty" hidden>
+      <span class="empty-icon">♙</span>
+      <h3>No students available</h3>
+      <p>Add students from the Students section before assigning them to an examination.</p>
+      <button class="button button-secondary" type="button" data-go-to="students">Open Students</button>
+    </article>
+
+    <div class="workspace-actions">
+      <p class="form-message" id="workspaceSaveMessage" aria-live="polite"></p>
+      <button class="button button-primary" id="workspaceSaveStudents" type="button">Save Student Assignment</button>
+    </div>
+  </article>
+</section>
+
+
+
+
+<section class="screen" id="examination-room-workspace" data-title="Manage Examination Rooms" hidden>
+  <div class="form-page-heading">
+    <button class="back-button" type="button" data-go-to="examinations">← Back to examinations</button>
+    <p class="eyebrow">Examination workspace</p>
+    <h2 id="workspaceRoomExamName">Examination rooms</h2>
+    <p class="muted" id="workspaceRoomExamMeta"></p>
+  </div>
+
+  <div class="workspace-summary-grid">
+    <article class="stat-card">
+      <span class="stat-icon blue">▥</span>
+      <div>
+        <p>Available rooms</p>
+        <strong id="workspaceRoomCount">0</strong>
+        <small>Room records</small>
+      </div>
+    </article>
+
+    <article class="stat-card">
+      <span class="stat-icon green">✓</span>
+      <div>
+        <p>Assigned rooms</p>
+        <strong id="workspaceSelectedRoomCount">0 assigned</strong>
+        <small>For this examination</small>
+      </div>
+    </article>
+  </div>
+
+  <article class="panel workspace-panel workspace-room-panel">
+    <div class="panel-heading workspace-panel-heading">
+      <div>
+        <h3>Select rooms</h3>
+        <p>Choose the rooms that will be available for this examination.</p>
+      </div>
+
+      <label class="workspace-select-all">
+        <input id="workspaceRoomSelectAll" type="checkbox">
+        Select all
+      </label>
+    </div>
+
+    <div class="student-toolbar workspace-toolbar">
+      <div class="search-box">
+        <span aria-hidden="true">⌕</span>
+        <input
+          id="workspaceRoomSearch"
+          type="search"
+          placeholder="Search by room name or type..."
+          autocomplete="off"
+        >
+      </div>
+    </div>
+
+    <div class="workspace-room-list" id="workspaceRoomList" aria-live="polite"></div>
+
+    <article class="panel empty-table workspace-empty" id="workspaceRoomEmpty" hidden>
+      <span class="empty-icon">▥</span>
+      <h3>No rooms available</h3>
+      <p>Add rooms from the Rooms section before assigning them to an examination.</p>
+      <button class="button button-secondary" type="button" data-go-to="rooms">Open Rooms</button>
+    </article>
+
+    <div class="workspace-actions">
+      <p class="form-message" id="workspaceRoomSaveMessage" aria-live="polite"></p>
+      <button class="button button-primary" id="workspaceSaveRooms" type="button">Save Room Assignment</button>
+    </div>
+  </article>
+</section>
+
+<section class="screen" id="rooms" data-title="Rooms" hidden>
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">Capacity planning</p>
+      <h2>Rooms</h2>
+      <p class="muted">
+        Configure the rooms available for your examinations.
+      </p>
+    </div>
+
+    <button class="button button-primary" type="button" data-go-to="add-room">
+      + Add Room
+    </button>
+  </div>
+
+  <div class="room-list" id="roomList" aria-live="polite"></div>
+
+  <article class="panel empty-table" id="roomEmpty">
+    <span class="empty-icon">▥</span>
+    <h3>No rooms configured yet</h3>
+    <p>
+      Add your first examination room to begin planning seating.
+    </p>
+
+    <button
+      class="button button-primary"
+      type="button"
+      data-go-to="add-room"
+    >
+      + Add Room
+    </button>
+  </article>
+</section>
+
+
+<section class="screen" id="add-room" data-title="Add Room" hidden>
+  <div class="form-page-heading">
+    <button class="back-button" id="cancelRoomTop" type="button">
+      ← Back to rooms
+    </button>
+
+    <p class="eyebrow">Room configuration</p>
+
+    <h2>Add examination room</h2>
+
+    <p class="muted">
+      Choose a room type and define its seating capacity.
+    </p>
+  </div>
+
+  <form class="panel room-form" id="roomForm" novalidate>
+
+    <div class="form-grid">
+
+      <!-- Room name -->
+      <label for="roomName">
+        Room Name <span class="required-mark">*</span>
+
+        <input
+          id="roomName"
+          name="name"
+          type="text"
+          placeholder="e.g. Room 101"
+          required
+        >
+
+        <small class="field-error" id="roomNameError"></small>
+      </label>
+
+
+      <!-- Room type -->
+      <label for="roomType">
+        Room Type <span class="required-mark">*</span>
+
+        <select id="roomType" name="type" required>
+          <option value="">Select room type</option>
+          <option value="standard">Standard Classroom</option>
+          <option value="bench">Bench Classroom</option>
+        </select>
+
+        <small class="field-error" id="roomTypeError"></small>
+      </label>
+
+    </div>
+
+
+    <!-- STANDARD CLASSROOM -->
+    <div class="room-config-panel" id="standardRoomConfig" hidden>
+
+      <div class="room-config-heading">
+        <div>
+          <h3>Standard Classroom</h3>
+          <p>
+            Individual seating arranged in rows and columns.
+          </p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+
+        <label for="roomRows">
+          Rows <span class="required-mark">*</span>
+
+          <input
+            id="roomRows"
+            type="number"
+            min="1"
+            max="50"
+            placeholder="e.g. 5"
+          >
+
+          <small class="field-error" id="roomRowsError"></small>
+        </label>
+
+
+        <label for="roomColumns">
+          Columns <span class="required-mark">*</span>
+
+          <input
+            id="roomColumns"
+            type="number"
+            min="1"
+            max="50"
+            placeholder="e.g. 6"
+          >
+
+          <small class="field-error" id="roomColumnsError"></small>
+        </label>
+
+      </div>
+
+    </div>
+
+
+    <!-- BENCH CLASSROOM -->
+    <div class="room-config-panel" id="benchRoomConfig" hidden>
+
+      <div class="room-config-heading">
+        <div>
+          <h3>Bench Classroom</h3>
+          <p>
+            Each bench accommodates two students.
+          </p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+
+        <label for="benchRows">
+          Rows <span class="required-mark">*</span>
+
+          <input
+            id="benchRows"
+            type="number"
+            min="1"
+            max="50"
+            placeholder="e.g. 5"
+          >
+
+          <small class="field-error" id="benchRowsError"></small>
+        </label>
+
+
+        <label for="benchesPerRow">
+          Benches per Row <span class="required-mark">*</span>
+
+          <input
+            id="benchesPerRow"
+            type="number"
+            min="1"
+            max="50"
+            placeholder="e.g. 4"
+          >
+
+          <small class="field-error" id="benchesPerRowError"></small>
+        </label>
+
+      </div>
+
+      <div class="bench-capacity-info">
+        <span>Students per bench</span>
+        <strong>2</strong>
+      </div>
+
+    </div>
+
+
+    <!-- CAPACITY PREVIEW -->
+    <div class="room-capacity-preview" id="roomCapacityPreview" hidden>
+      <span>Calculated capacity</span>
+      <strong id="roomCapacity">0</strong>
+      <small>students</small>
+    </div>
+
+
+    <p class="form-message" id="roomFormMessage" aria-live="polite"></p>
+
+
+    <div class="form-actions">
+
+      <button
+        class="button button-secondary"
+        id="cancelRoom"
+        type="button"
+      >
+        Cancel
+      </button>
+
+      <button
+        class="button button-primary"
+        type="submit"
+      >
+        Add Room
+      </button>
+
+    </div>
+
+  </form>
+</section>
+      <section class="screen" id="seating-plans" data-title="Seating Plans" hidden>
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">Final review</p>
+      <h2>Seating Plans</h2>
+      <p class="muted">Generate, inspect, and finalize room-wise seating allocations.</p>
+    </div>
+  </div>
+
+  <article class="panel seating-generator-panel">
+    <div class="panel-heading">
+      <div>
+        <h3>Generate seating plan</h3>
+        <p>Select an examination that already has students and rooms assigned.</p>
+      </div>
+      <span class="seating-status-badge" id="seatingPlanStatusBadge">Draft</span>
+    </div>
+
+    <div class="seating-controls">
+      <label for="seatingExamSelect">
+        Examination
+        <select id="seatingExamSelect">
+          <option value="">Select an examination</option>
+        </select>
+      </label>
+
+      <div class="seating-summary" id="seatingSummary">
+        <div>
+          <span>Students</span>
+          <strong id="seatingStudentCount">0</strong>
+        </div>
+        <div>
+          <span>Rooms</span>
+          <strong id="seatingRoomCount">0</strong>
+        </div>
+        <div>
+          <span>Available seats</span>
+          <strong id="seatingCapacity">0</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="seating-capacity-message" id="seatingCapacityMessage" aria-live="polite">
+      Select an examination to check seating capacity.
+    </div>
+
+    <div class="seating-actions">
+      <button class="button button-secondary" id="seatingRegenerateButton" type="button" hidden>
+        Regenerate
+      </button>
+      <button class="button button-primary" id="generateSeatingButton" type="button" disabled>
+        Generate Seating Plan
+      </button>
+      <button class="button button-primary seating-finalize-button" id="finalizeSeatingButton" type="button" hidden>
+        Finalize Plan
+      </button>
+    </div>
+
+    <p class="form-message" id="seatingPlanMessage" aria-live="polite"></p>
+  </article>
+
+  <section id="seatingPlanPreview" hidden>
+    <div class="section-heading seating-preview-heading">
+      <div>
+        <p class="eyebrow">Generated allocation</p>
+        <h2 id="seatingPreviewTitle">Seating Plan</h2>
+        <p class="muted" id="seatingPreviewMeta"></p>
+      </div>
+    </div>
+
+    <!-- REVIEW SUMMARY -->
+    <article class="panel seating-review-panel" id="seatingReviewPanel">
+
+      <div class="seating-review-header">
+
+        <div>
+          <p class="eyebrow">Review</p>
+          <h3>Seating plan review</h3>
+        </div>
+
+        <span
+          class="seating-review-status"
+          id="seatingReviewStatus"
+        >
+          Ready for review
+        </span>
+
+      </div>
+
+      <div class="seating-review-grid">
+
+        <div class="seating-review-item">
+          <span>Students assigned</span>
+          <strong id="reviewAssignedStudents">
+            0 / 0
+          </strong>
+        </div>
+
+        <div class="seating-review-item">
+          <span>Rooms used</span>
+          <strong id="reviewRoomsUsed">
+            0
+          </strong>
+        </div>
+
+        <div class="seating-review-item">
+          <span>Seats available</span>
+          <strong id="reviewSeatsAvailable">
+            0
+          </strong>
+        </div>
+
+        <div class="seating-review-item">
+          <span>Unassigned students</span>
+          <strong id="reviewUnassignedStudents">
+            0
+          </strong>
+        </div>
+
+        <div class="seating-review-item">
+          <span>Conflicts</span>
+          <strong id="reviewConflictCount">
+            0
+          </strong>
+        </div>
+
+      </div>
+
+      <div
+        class="seating-review-message"
+        id="seatingReviewMessage"
+      >
+        ✓ Seating plan is ready for review.
+      </div>
+
+    </article>
+
+    <div class="seating-room-list" id="seatingRoomList"></div>
+  </section>
+
+  <article class="panel empty-table" id="seatingPlanEmpty">
+    <span class="empty-icon">▧</span>
+    <h3>No seating plan generated</h3>
+    <p>Select an examination above and generate its seating allocation.</p>
+  </article>
+</section>
+</main></div></div>
+
+<!-- FINALIZE SEATING PLAN MODAL -->
+<div
+  class="finalize-modal-backdrop"
+  id="finalizeModalBackdrop"
+  hidden
+>
+  <div
+    class="finalize-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="finalizeModalTitle"
+  >
+    <div class="finalize-modal-icon" aria-hidden="true">✓</div>
+
+    <div class="finalize-modal-content">
+      <p class="eyebrow">Final confirmation</p>
+      <h2 id="finalizeModalTitle">Finalize Seating Plan?</h2>
+      <p class="finalize-modal-description">
+        This will lock the current seating arrangement for this examination.
+      </p>
+
+      <div class="finalize-modal-summary">
+        <div>
+          <span>Students</span>
+          <strong id="finalizeModalStudents">0 / 0</strong>
+        </div>
+        <div>
+          <span>Rooms</span>
+          <strong id="finalizeModalRooms">0</strong>
+        </div>
+        <div>
+          <span>Conflicts</span>
+          <strong id="finalizeModalConflicts">0</strong>
+        </div>
+      </div>
+
+      <div class="finalize-modal-warning">
+        <strong>⚠ This action will lock the plan.</strong>
+        <span>
+          You will not be able to regenerate this seating arrangement after finalization.
+        </span>
+      </div>
+
+      <div class="finalize-modal-actions">
+        <button
+          class="button button-secondary"
+          id="cancelFinalizeButton"
+          type="button"
+        >
+          Cancel
+        </button>
+        <button
+          class="button button-primary"
+          id="confirmFinalizeButton"
+          type="button"
+        >
+          Finalize Plan
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" hidden></div>
+    <script>
+      (function () {
+
+        const savedSession =
+          localStorage.getItem(
+            "examSeatSession"
+          );
+
+        if (!savedSession) {
+
+          window.location.href =
+            "index.html";
+
+          return;
+
+        }
+
+        try {
+
+          const session =
+            JSON.parse(
+              savedSession
+            );
+
+          if (
+            !session ||
+            session.role !==
+              "teacher"
+          ) {
+
+            localStorage.removeItem(
+              "examSeatSession"
+            );
+
+            window.location.href =
+              "index.html";
+
+          }
+
+        } catch (error) {
+
+          localStorage.removeItem(
+            "examSeatSession"
+          );
+
+          window.location.href =
+            "index.html";
+
+        }
+
+      })();
+    </script>
+
+    <script src="seating-algorithm.js"></script>
+    <script src="teacher.js"></script>
+    <script>
+  window.addEventListener(
+    "pageshow",
+    function () {
+
+      const session =
+        localStorage.getItem(
+          "examSeatSession"
+        );
+
+      if (!session) {
+
+        window.location.replace(
+          "index.html"
+        );
+
+      }
+
+    }
+  );
+</script>
+</body></html>

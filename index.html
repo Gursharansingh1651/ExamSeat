@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ExamSeat role selection"><title>ExamSeat | Choose your role</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <section class="auth-landing" aria-labelledby="loginTitle">
+    <header class="landing-header">
+      <a class="brand brand--dark" href="index.html" aria-label="ExamSeat login">
+        <span class="brand-mark" aria-hidden="true"><i></i><b>✓</b></span>
+        <span><strong>Exam</strong>Seat</span>
+      </a>
+      <span class="prototype-label">ST1 prototype</span>
+    </header>
+
+    <main class="auth-content">
+      <p class="eyebrow">Examination seating management</p>
+      <h1 id="loginTitle">Welcome to ExamSeat</h1>
+      <p class="auth-intro">Sign in to access your examination seating workspace.</p>
+
+      <div class="auth-card">
+        <div class="auth-card-heading">
+          <p class="eyebrow">Account login</p>
+          <h2>Sign in</h2>
+          <p>Use your Student ID or email and password.</p>
+        </div>
+
+        <form id="loginForm" novalidate>
+          <label for="loginIdentifier">
+            Student ID / Email
+            <span class="required-mark">*</span>
+            <input
+              id="loginIdentifier"
+              name="identifier"
+              type="text"
+              placeholder="Enter your Student ID or email"
+              autocomplete="username"
+              required
+            >
+          </label>
+
+          <label for="loginPassword">
+            Password
+            <span class="required-mark">*</span>
+            <input
+              id="loginPassword"
+              name="password"
+              type="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+            >
+          </label>
+
+          <p class="form-message" id="loginMessage" aria-live="polite"></p>
+
+          <button class="button button-primary button-wide" type="submit">
+            Sign In
+          </button>
+        </form>
+
+        <div class="auth-footer">
+          <p>Don't have an account?</p>
+          <button class="text-button" id="showSignup" type="button">
+            Create an account
+          </button>
+        </div>
+      </div>
+
+      <div class="auth-card auth-card--signup" id="signupCard" hidden>
+        <div class="auth-card-heading">
+          <p class="eyebrow">Create account</p>
+          <h2>Sign up</h2>
+          <p>Create your ExamSeat account to continue.</p>
+        </div>
+
+        <form id="signupForm" novalidate>
+          <label for="signupName">
+            Full Name
+            <span class="required-mark">*</span>
+            <input
+              id="signupName"
+              name="name"
+              type="text"
+              placeholder="Enter your full name"
+              autocomplete="name"
+              required
+            >
+          </label>
+
+          <label for="signupIdentifier">
+            Student ID / Email
+            <span class="required-mark">*</span>
+            <input
+              id="signupIdentifier"
+              name="identifier"
+              type="text"
+              placeholder="Enter your Student ID or email"
+              autocomplete="username"
+              required
+            >
+          </label>
+
+          <label for="signupPassword">
+            Password
+            <span class="required-mark">*</span>
+            <input
+              id="signupPassword"
+              name="password"
+              type="password"
+              placeholder="Create a password"
+              autocomplete="new-password"
+              required
+            >
+          </label>
+
+          <label for="signupConfirmPassword">
+            Confirm Password
+            <span class="required-mark">*</span>
+            <input
+              id="signupConfirmPassword"
+              name="confirmPassword"
+              type="password"
+              placeholder="Re-enter your password"
+              autocomplete="new-password"
+              required
+            >
+          </label>
+
+          <label for="signupRole">
+            Account Type
+            <span class="required-mark">*</span>
+            <select id="signupRole" name="role" required>
+              <option value="">Select account type</option>
+              <option value="student">Student</option>
+              <option value="teacher">Teacher</option>
+            </select>
+          </label>
+
+          <label for="teacherCode" id="teacherCodeGroup" hidden>
+            Teacher Registration Code
+            <span class="required-mark">*</span>
+            <input
+              id="teacherCode"
+              name="teacherCode"
+              type="password"
+              placeholder="Enter teacher registration code"
+              autocomplete="off"
+            >
+          </label>
+
+          <p class="form-message" id="signupMessage" aria-live="polite"></p>
+
+          <button class="button button-primary button-wide" type="submit">
+            Create Account
+          </button>
+        </form>
+
+        <div class="auth-footer">
+          <p>Already have an account?</p>
+          <button class="text-button" id="backToLogin" type="button">
+            Back to Sign In
+          </button>
+        </div>
+      </div>
+    </main>
+  </section>
+  <script>
+    (function () {
+      const loginCard = document.querySelector(".auth-card:not(#signupCard)");
+      const signupCard = document.getElementById("signupCard");
+      const showSignup = document.getElementById("showSignup");
+      const backToLogin = document.getElementById("backToLogin");
+      const signupRole = document.getElementById("signupRole");
+      const teacherCodeGroup = document.getElementById("teacherCodeGroup");
+      const teacherCode = document.getElementById("teacherCode");
+
+      function showSignupView() {
+        if (loginCard) loginCard.hidden = true;
+        if (signupCard) signupCard.hidden = false;
+      }
+
+      function showLoginView() {
+        if (signupCard) signupCard.hidden = true;
+        if (loginCard) loginCard.hidden = false;
+      }
+
+      if (showSignup) {
+        showSignup.addEventListener("click", showSignupView);
+      }
+
+      if (backToLogin) {
+        backToLogin.addEventListener("click", showLoginView);
+      }
+
+      if (signupRole) {
+        signupRole.addEventListener("change", function () {
+          const isTeacher = signupRole.value === "teacher";
+
+          if (teacherCodeGroup) {
+            teacherCodeGroup.hidden = !isTeacher;
+          }
+
+          if (teacherCode) {
+            teacherCode.required = isTeacher;
+
+            if (!isTeacher) {
+              teacherCode.value = "";
+            }
+          }
+        });
+      }
+    })();
+  </script>
+
+  <script src="auth.js"></script>
+
+  <script src="app.js"></script>
+</body>
+</html>
