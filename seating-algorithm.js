@@ -65,36 +65,250 @@ const ExamSeatSeatingAlgorithm = (function () {
     roomPlans.forEach(function (roomPlan) { roomPlanById[roomPlan.roomId] = roomPlan; });
     const internalAssignments = [];
 
-    rooms.forEach(function (room) {
-      buildRoomSeats(room).forEach(function (seat) {
-        if (remainingStudents.length === 0) return;
-        let chosenIndex = remainingStudents.findIndex(function (student) {
-          return !internalAssignments.some(function (assignment) {
-            return areSeatsAdjacent(
+    const allSeats = [];
+
+rooms.forEach(function (room) {
+
+  buildRoomSeats(room).forEach(function (seat) {
+
+    allSeats.push(
+      Object.assign(
+        {},
+        seat
+      )
+    );
+
+  });
+
+});
+
+
+function conflictsWithAssignedStudent(
   seat,
-  assignment,
-  roomById[assignment.roomId]
-) &&
-sameSection(
   student,
-  assignment.student
-) &&
-sameSubject(
-  student,
-  assignment.student
-);
-          });
-        });
+  assignments
+) {
+
+  for (
+    let index = 0;
+    index < assignments.length;
+    index += 1
+  ) {
+
+    const assignment =
+      assignments[index];
 
 
-        // When every remaining choice conflicts, place the student and let the validator report it.
-        if (chosenIndex === -1) chosenIndex = 0;
-        const student = remainingStudents.splice(chosenIndex, 1)[0];
-        const assignment = Object.assign({}, seat, { studentId: student.id, studentName: student.name, studentNumber: student.studentId, student: student });
-        internalAssignments.push(assignment);
-        roomPlanById[room.id].assignments.push(Object.assign({}, assignment));
-      });
-    });
+    if (
+      areSeatsAdjacent(
+        seat,
+        assignment,
+        roomById[
+          assignment.roomId
+        ]
+      ) &&
+      sameSection(
+        student,
+        assignment.student
+      ) &&
+      sameSubject(
+        student,
+        assignment.student
+      )
+    ) {
+
+      return true;
+
+    }
+
+  }
+
+
+  return false;
+
+}
+
+
+const studentsToPlace =
+  students.slice();
+
+
+function tryAssignStudent(
+  studentIndex
+) {
+
+  if (
+    studentIndex >=
+    studentsToPlace.length
+  ) {
+
+    return true;
+
+  }
+
+
+  const student =
+    studentsToPlace[
+      studentIndex
+    ];
+
+
+  for (
+    let seatIndex = 0;
+    seatIndex < allSeats.length;
+    seatIndex += 1
+  ) {
+
+    const seat =
+      allSeats[seatIndex];
+
+
+    const alreadyUsed =
+      internalAssignments.some(
+        function (assignment) {
+
+          return (
+            assignment.roomId ===
+              seat.roomId &&
+            assignment.seat ===
+              seat.seat
+          );
+
+        }
+      );
+
+
+    if (alreadyUsed) {
+
+      continue;
+
+    }
+
+
+    if (
+      conflictsWithAssignedStudent(
+        seat,
+        student,
+        internalAssignments
+      )
+    ) {
+
+      continue;
+
+    }
+
+
+    const assignment =
+      Object.assign(
+        {},
+        seat,
+        {
+          studentId:
+            student.id,
+
+          studentName:
+            student.name,
+
+          studentNumber:
+            student.studentId,
+
+          student:
+            student
+        }
+      );
+
+
+    internalAssignments.push(
+      assignment
+    );
+
+
+    if (
+      tryAssignStudent(
+        studentIndex + 1
+      )
+    ) {
+
+      return true;
+
+    }
+
+
+    internalAssignments.pop();
+
+  }
+
+
+  return false;
+
+}
+
+
+const seatingSuccessful =
+  tryAssignStudent(0);
+
+
+if (seatingSuccessful) {
+
+  internalAssignments.forEach(
+    function (assignment) {
+
+      const roomPlan =
+        roomPlanById[
+          assignment.roomId
+        ];
+
+
+      if (!roomPlan) {
+
+        return;
+
+      }
+
+
+      roomPlan.assignments.push(
+        Object.assign(
+          {},
+          assignment
+        )
+      );
+
+    }
+  );
+
+}
+
+
+const assignedStudentIds =
+  internalAssignments.map(
+    function (assignment) {
+
+      return assignment.studentId;
+
+    }
+  );
+
+
+const unassignedStudentIds =
+  students
+    .filter(
+      function (student) {
+
+        return !assignedStudentIds.includes(
+          student.id
+        );
+
+      }
+    )
+    .map(
+      function (student) {
+
+        return student.id;
+
+      }
+    );
+
+
 
     const assignments = internalAssignments.map(function (assignment) {
       const flat = Object.assign({}, assignment, { roomName: roomPlanById[assignment.roomId].roomName });
@@ -110,10 +324,13 @@ sameSubject(
       generatedAt: new Date().toISOString(),
       studentCount: students.length,
       capacity: rooms.reduce(function (total, room) { return total + getRoomCapacity(room); }, 0),
-      constraints: { avoidSameSectionAdjacency: true },
+      constraints: {
+  avoidSameSectionAdjacency: true,
+  avoidSameSubjectAdjacency: true
+},
       rooms: roomPlans,
       assignments: assignments,
-      unassignedStudentIds: remainingStudents.map(function (student) { return student.id; })
+      unassignedStudentIds: unassignedStudentIds
     };
   }
 
@@ -130,8 +347,23 @@ sameSubject(
         const first = assignments[firstIndex];
         const second = assignments[secondIndex];
         const room = roomById[first.roomId];
-        if (room && areSeatsAdjacent(first, second, room) && sameSection(studentById[first.studentId] || {}, studentById[second.studentId] || {})) {
-          conflicts.push({ type: "section-adjacency", roomId: first.roomId, firstStudentId: first.studentId, secondStudentId: second.studentId, message: `${first.studentName} and ${second.studentName} from the same section are seated next to each other.` });
+        if (
+  room &&
+  areSeatsAdjacent(
+    first,
+    second,
+    room
+  ) &&
+  sameSection(
+    studentById[first.studentId] || {},
+    studentById[second.studentId] || {}
+  ) &&
+  sameSubject(
+    studentById[first.studentId] || {},
+    studentById[second.studentId] || {}
+  )
+) {
+          conflicts.push({ type: "section-adjacency", roomId: first.roomId, firstStudentId: first.studentId, secondStudentId: second.studentId, message: `${first.studentName} and ${second.studentName} from the same section and subject are seated next to each other.` });
         }
       }
     }
