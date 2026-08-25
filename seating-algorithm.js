@@ -198,24 +198,13 @@ function tryAssignStudent(
     }
 
 
-    const assignment =
-      Object.assign(
-        {},
-        seat,
-        {
-          studentId:
-            student.id,
-
-          studentName:
-            student.name,
-
-          studentNumber:
-            student.studentId,
-
-          student:
-            student
-        }
-      );
+    const assignment = Object.assign({}, seat, {
+  studentId: student.id,
+  studentName: student.name,
+  studentNumber: student.studentId,
+  subject: student.subject,
+  student: student
+});
 
 
     internalAssignments.push(
