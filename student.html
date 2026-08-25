@@ -19,6 +19,13 @@
       <a class="student-nav-link" href="#exam-information" data-view="exam-information">Exam Information</a>
       <a class="student-nav-link switch-link" href="index.html">⇄ Switch Role</a>
     </nav>
+    <button
+  type="button"
+  class="button button-secondary"
+  onclick="logoutExamSeat()"
+>
+  Logout
+</button>
   </header>
   <main class="student-main">
     <section class="student-view active" id="home"><div class="student-hero"><div><p class="eyebrow">Student portal</p><h1>Your exam seat, made clear.</h1><p>Find your room and seat as soon as your teacher publishes the seating plan.</p><button class="button button-primary" data-go-to="find-my-seat">Find my seat →</button></div><div class="student-hero-mark" aria-hidden="true"><span>✓</span></div></div><article class="student-help"><span class="help-icon">i</span><div><h2>Ready when your plan is published</h2><p>Keep your Student ID ready, then use Find My Seat to view your allocated room and seat.</p></div></article></section>
@@ -26,6 +33,81 @@
     <section class="student-view" id="seat-visualisation" hidden><div class="visualisation-heading"><button class="back-button" id="backToResult" type="button">← Back to seating details</button><div class="student-page-heading"><p class="eyebrow">Room visualisation</p><h1>Your seat in the room</h1><p id="visualisationSummary">Your allocated seat is highlighted below.</p></div></div><section class="seat-map panel" aria-labelledby="seatMapTitle"><div class="seat-map-heading"><div><h2 id="seatMapTitle">Room <span id="mapRoom">—</span></h2><p>Front of examination room</p></div><span class="seat-legend"><i></i>Your assigned seat</span></div><div class="exam-desk">Invigilator's desk / board</div><div class="seat-grid" id="seatMap" aria-label="Examination room seat map"></div><p class="map-note">Please take the highlighted seat when you enter the room.</p></section></section>
     <section class="student-view" id="exam-information" hidden><div class="student-page-heading"><p class="eyebrow">Your examination</p><h1>Exam information</h1><p>Important details will be published here by your teacher.</p></div><article class="panel empty-table"><span class="empty-icon">▤</span><h3>No examination published yet</h3><p>Check back once your teacher has created and published the seating plan.</p></article></section>
   </main>
+  <script>
+    (function () {
+
+      const savedSession =
+        localStorage.getItem(
+          "examSeatSession"
+        );
+
+      if (!savedSession) {
+
+        window.location.href =
+          "index.html";
+
+        return;
+
+      }
+
+      try {
+
+        const session =
+          JSON.parse(
+            savedSession
+          );
+
+        if (
+          !session ||
+          session.role !==
+            "student"
+        ) {
+
+          localStorage.removeItem(
+            "examSeatSession"
+          );
+
+          window.location.href =
+            "index.html";
+
+        }
+
+      } catch (error) {
+
+        localStorage.removeItem(
+          "examSeatSession"
+        );
+
+        window.location.href =
+          "index.html";
+
+      }
+
+    })();
+  </script>
+
+  <script src="student.js"></script>
+  <script>
+  window.addEventListener(
+    "pageshow",
+    function () {
+
+      const session =
+        localStorage.getItem(
+          "examSeatSession"
+        );
+
+      if (!session) {
+
+        window.location.replace(
+          "index.html"
+        );
+
+      }
+
+    }
+  );
+</script>
   <script src="student.js"></script>
 </body>
 </html>

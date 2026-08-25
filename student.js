@@ -856,3 +856,19 @@ showStudentView(
   window.location.hash.slice(1),
   false
 );
+
+/* =========================================================
+   STEP 5 — LOGOUT
+   ========================================================= */
+
+function logoutExamSeat() {
+
+  localStorage.removeItem(
+    "examSeatSession"
+  );
+
+  window.location.replace(
+    "index.html"
+  );
+
+}

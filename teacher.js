@@ -148,6 +148,11 @@ const finalizeModalConflicts =
 const seatingPlanPreview =
   document.getElementById("seatingPlanPreview");
 
+const printSeatingButton =
+  document.getElementById(
+    "printSeatingButton"
+  );
+
 const seatingPlanEmpty =
   document.getElementById("seatingPlanEmpty");
 
@@ -499,6 +504,14 @@ function renderExaminations() {
     Manage Rooms
   </button>
 
+  <button
+  class="button button-secondary examination-delete-button"
+  type="button"
+  data-exam-id="${exam.id}"
+>
+  Delete Examination
+</button>
+
 </div>
 `;
 
@@ -697,6 +710,8 @@ function renderWorkspaceStudents(searchTerm = "") {
             ${student.studentId}
             ·
             ${student.course}
+            .
+            ${student.subject || "-"}
             ${
               student.section
                 ? ` · ${student.section}`
@@ -919,6 +934,89 @@ function getStudents() {
   } catch (error) {
 
     return [];
+  }
+}
+
+/* =========================================================
+   REAL-TIME DASHBOARD STATISTICS
+   ========================================================= */
+
+function updateDashboardStats() {
+  const students = getStudents();
+  const rooms = getRooms();
+  const seatingPlans = getSeatingPlans();
+
+  // Students
+  const studentCount =
+    document.getElementById("dashboardStudentCount");
+
+  if (studentCount) {
+    studentCount.textContent = students.length;
+  }
+
+  // Rooms
+  const roomCount =
+    document.getElementById("dashboardRoomCount");
+
+  if (roomCount) {
+    roomCount.textContent = rooms.length;
+  }
+
+  // Total room capacity
+  let totalSeats = 0;
+
+  rooms.forEach((room) => {
+    if (room.type === "standard") {
+      totalSeats +=
+        Number(room.rows || 0) *
+        Number(room.columns || 0);
+    } else if (room.type === "bench") {
+      totalSeats +=
+        Number(room.rows || 0) *
+        Number(room.benchesPerRow || 0) *
+        Number(room.studentsPerBench || 0);
+    } else {
+      totalSeats += Number(room.capacity || 0);
+    }
+  });
+
+  // Seats currently assigned
+  let assignedSeats = 0;
+
+  if (Array.isArray(seatingPlans)) {
+    seatingPlans.forEach((plan) => {
+      if (Array.isArray(plan.assignments)) {
+        assignedSeats += plan.assignments.length;
+      }
+    });
+  }
+
+  const availableSeats =
+    Math.max(totalSeats - assignedSeats, 0);
+
+  const availableSeatsElement =
+    document.getElementById("dashboardAvailableSeats");
+
+  if (availableSeatsElement) {
+    availableSeatsElement.textContent = availableSeats;
+  }
+
+  // Conflicts
+  let conflictCount = 0;
+
+  if (Array.isArray(seatingPlans)) {
+    seatingPlans.forEach((plan) => {
+      if (Array.isArray(plan.conflicts)) {
+        conflictCount += plan.conflicts.length;
+      }
+    });
+  }
+
+  const conflictElement =
+    document.getElementById("dashboardConflictCount");
+
+  if (conflictElement) {
+    conflictElement.textContent = conflictCount;
   }
 }
 
@@ -1187,6 +1285,11 @@ function renderStudents(searchTerm = "") {
           <span>
             <b>Course / Class</b>
             ${student.course}
+          </span>
+
+          <span>
+            <b>Subject</b>
+            ${student.subject || "-"}
           </span>
 
 
@@ -2263,10 +2366,99 @@ if (examinationList) {
     "click",
     (event) => {
 
+      /* ================================
+         MANAGE ROOMS
+         ================================= */
+
+      const roomButton =
       const button =
         event.target.closest(
           ".examination-manage-rooms"
         );
+
+      if (roomButton) {
+
+        openExaminationRoomWorkspace(
+          roomButton.dataset.examId
+        );
+
+        return;
+      }
+
+
+      /* ================================
+         DELETE EXAMINATION
+         ================================= */
+
+      const deleteButton =
+        event.target.closest(
+          ".examination-delete-button"
+        );
+
+      if (!deleteButton) {
+        return;
+      }
+
+
+      const examId =
+        deleteButton.dataset.examId;
+
+      const exam =
+        getExaminationById(
+          examId
+        );
+
+      if (!exam) {
+        return;
+      }
+
+
+      const confirmed =
+        window.confirm(
+          `Are you sure you want to delete "${exam.name}"?`
+        );
+
+      if (!confirmed) {
+        return;
+      }
+
+
+      /* REMOVE EXAMINATION */
+
+      const examinations =
+        getExaminations()
+          .filter(
+            (item) =>
+              item.id !== examId
+          );
+
+      saveExaminations(
+        examinations
+      );
+
+
+      /* REMOVE RELATED SEATING PLAN */
+
+      const seatingPlans =
+        getSeatingPlans()
+          .filter(
+            (plan) =>
+              plan.examId !== examId
+          );
+
+      saveSeatingPlans(
+        seatingPlans
+      );
+
+
+      /* REFRESH EXAMINATION LIST */
+
+      renderExaminations();
+
+
+      /* REFRESH DASHBOARD */
+
+      updateDashboardStats();
 
       if (!button) {
         return;
@@ -2345,6 +2537,182 @@ if (workspaceSaveRooms) {
     "click",
     saveWorkspaceRooms
   );
+}
+
+const studentJsonFile =
+  document.getElementById(
+    "studentJsonFile"
+  );
+
+/* JSON STUDENT IMPORT */
+
+if (studentJsonFile) {
+
+  studentJsonFile.addEventListener(
+    "change",
+    function (event) {
+
+      const file =
+        event.target.files[0];
+
+
+      if (!file) {
+        return;
+      }
+
+
+      const reader =
+        new FileReader();
+
+
+      reader.onload =
+        function () {
+
+          try {
+
+            const importedStudents =
+              JSON.parse(
+                reader.result
+              );
+
+
+            if (
+              !Array.isArray(
+                importedStudents
+              )
+            ) {
+
+              alert(
+                "The JSON file must contain an array of students."
+              );
+
+              return;
+
+            }
+
+
+            const validStudents =
+              importedStudents.filter(
+                function (student) {
+
+                  return (
+                    student &&
+                    student.name &&
+                    (
+                      student.rollNo ||
+                      student.studentId
+                    ) &&
+                    student.subject &&
+                    student.section
+                  );
+
+                }
+              );
+
+
+            if (
+              validStudents.length !==
+              importedStudents.length
+            ) {
+
+              alert(
+                "Some students were skipped because required fields are missing."
+              );
+
+            }
+
+
+            const existingStudents =
+              getStudents();
+
+
+            const studentsToSave =
+              existingStudents.concat(
+                validStudents.map(
+                  function (student) {
+
+                    return {
+
+                      id:
+                        student.id ||
+                        `student-${Date.now()}-${Math.random()
+                          .toString(36)
+                          .slice(2, 8)}`,
+
+                      name:
+                        student.name,
+
+                      studentId:
+                        student.studentId ||
+                        student.rollNo,
+
+                      subject:
+                        student.subject,
+
+                      section:
+                        student.section
+
+                    };
+
+                  }
+                )
+              );
+
+
+            saveStudents(
+              studentsToSave
+            );
+
+
+            alert(
+              `${validStudents.length} student${
+                validStudents.length === 1
+                  ? ""
+                  : "s"
+              } imported successfully.`
+            );
+
+
+            event.target.value = "";
+
+
+          } catch (error) {
+
+            alert(
+              "The selected file contains invalid JSON."
+            );
+
+          }
+
+        };
+
+
+      reader.readAsText(
+        file
+      );
+
+    }
+  );
+
+}
+
+function printSeatingPlan() {
+
+  if (
+    !seatingPlanPreview ||
+    seatingPlanPreview.hidden
+  ) {
+
+    alert(
+      "Generate a seating plan before printing."
+    );
+
+    return;
+
+  }
+
+  window.print();
+
 }
 
 
@@ -2429,6 +2797,15 @@ if (seatingRegenerateButton) {
     "click",
     generateSeatingPlan
   );
+}
+
+if (printSeatingButton) {
+
+  printSeatingButton.addEventListener(
+    "click",
+    printSeatingPlan
+  );
+
 }
 
 
@@ -2802,6 +3179,42 @@ function saveWorkspaceRooms() {
       checkbox.value
   );
 
+    /* CHECK FOR ROOM TIME CONFLICTS */
+
+  const proposedExam = {
+    ...exam,
+    roomIds: selectedIds
+  };
+
+  const roomConflicts =
+    findRoomTimeConflicts(
+      proposedExam
+    );
+
+  if (
+    roomConflicts.length > 0
+  ) {
+
+    const conflictMessage =
+      roomConflicts
+        .map(
+          (conflict) =>
+            `${conflict.roomName}: ${
+              conflict.message
+            }`
+        )
+        .join("\n");
+
+    if (
+      workspaceRoomSaveMessage
+    ) {
+      workspaceRoomSaveMessage.textContent =
+        `Cannot assign these rooms.\n${conflictMessage}`;
+    }
+
+    return;
+  }
+
 
   /* SAVE ROOM IDS */
 
@@ -2847,6 +3260,228 @@ function saveWorkspaceRooms() {
           } been assigned to this examination.`;
   }
 }
+
+/* =========================================================
+   EXAM ROOM TIME CONFLICT CHECK
+   ========================================================= */
+
+function getExamStartDateTime(exam) {
+
+  if (
+    !exam ||
+    !exam.date ||
+    !exam.startTime
+  ) {
+    return null;
+  }
+
+  const start =
+    new Date(
+      `${exam.date}T${exam.startTime}`
+    );
+
+  return Number.isNaN(
+    start.getTime()
+  )
+    ? null
+    : start;
+}
+
+
+function getExamEndDateTime(exam) {
+
+  const start =
+    getExamStartDateTime(
+      exam
+    );
+
+  if (!start) {
+    return null;
+  }
+
+  /*
+    Duration is stored/displayed
+    by the examination form.
+
+    Extract the numeric hour value.
+    Example:
+      "2 hours" → 2
+  */
+
+  const durationMatch =
+    String(
+      exam.duration || ""
+    ).match(
+      /(\d+(?:\.\d+)?)/
+    );
+
+  if (!durationMatch) {
+    return null;
+  }
+
+  const durationHours =
+    Number(
+      durationMatch[1]
+    );
+
+  if (
+    !Number.isFinite(
+      durationHours
+    )
+  ) {
+    return null;
+  }
+
+  return new Date(
+    start.getTime() +
+      durationHours *
+        60 *
+        60 *
+        1000
+  );
+}
+
+
+function examsOverlap(
+  firstExam,
+  secondExam
+) {
+
+  const firstStart =
+    getExamStartDateTime(
+      firstExam
+    );
+
+  const firstEnd =
+    getExamEndDateTime(
+      firstExam
+    );
+
+  const secondStart =
+    getExamStartDateTime(
+      secondExam
+    );
+
+  const secondEnd =
+    getExamEndDateTime(
+      secondExam
+    );
+
+  if (
+    !firstStart ||
+    !firstEnd ||
+    !secondStart ||
+    !secondEnd
+  ) {
+    return false;
+  }
+
+  return (
+    firstStart < secondEnd &&
+    secondStart < firstEnd
+  );
+}
+
+
+function findRoomTimeConflicts(
+  exam
+) {
+
+  const conflicts = [];
+
+  const exams =
+    getExaminations();
+
+  const roomIds =
+    Array.isArray(
+      exam.roomIds
+    )
+      ? exam.roomIds
+      : [];
+
+  exams.forEach(
+    (otherExam) => {
+
+      if (
+        otherExam.id ===
+        exam.id
+      ) {
+        return;
+      }
+
+      const otherRoomIds =
+        Array.isArray(
+          otherExam.roomIds
+        )
+          ? otherExam.roomIds
+          : [];
+
+      const sharedRoomIds =
+        roomIds.filter(
+          (roomId) =>
+            otherRoomIds.includes(
+              roomId
+            )
+        );
+
+      if (
+        sharedRoomIds.length === 0
+      ) {
+        return;
+      }
+
+      if (
+        !examsOverlap(
+          exam,
+          otherExam
+        )
+      ) {
+        return;
+      }
+
+      sharedRoomIds.forEach(
+        (roomId) => {
+
+          const room =
+            getRooms().find(
+              (item) =>
+                item.id ===
+                roomId
+            );
+
+          conflicts.push({
+            roomId,
+            roomName:
+              room
+                ? room.name
+                : "Unknown room",
+
+            examId:
+              otherExam.id,
+
+            examName:
+              otherExam.name,
+
+            message:
+              `Room ${
+                room
+                  ? room.name
+                  : "Unknown room"
+              } is already occupied by "${
+                otherExam.name
+              }" during this time.`
+          });
+
+        }
+      );
+
+    }
+  );
+
+  return conflicts;
+}
+
+
 
 
 /* =========================================================
@@ -3578,6 +4213,30 @@ function generateSeatingPlan() {
   }
 
 
+  const plan =
+    ExamSeatSeatingAlgorithm.createPlan(
+      exam,
+      students,
+      rooms
+    );
+
+
+  if (
+    plan.unassignedStudentIds.length >
+    0
+  ) {
+
+    setSeatingMessage(
+      "The plan could not place every assigned student.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  /* Kept temporarily as a readable reference for the original prototype allocator. */
+  if (false) {
   let studentIndex =
     0;
 
@@ -3848,6 +4507,9 @@ function generateSeatingPlan() {
   };
 
 
+  }
+
+
   const plans =
     getSeatingPlans()
       .filter(
@@ -3865,6 +4527,8 @@ function generateSeatingPlan() {
   saveSeatingPlans(
     plans
   );
+
+  updateDashboardStats();
 
 
   exam.seatingPlanStatus =
@@ -4148,6 +4812,19 @@ function checkSeatingPlanConflicts(
         });
       }
     }
+  );
+
+
+  /*
+     Person A's rule: students from the same section should
+     not sit next to each other when a valid alternative exists.
+  */
+  conflicts.push(
+    ...ExamSeatSeatingAlgorithm.findSectionAdjacencyConflicts(
+      plan,
+      getStudents(),
+      rooms
+    )
   );
 
 
@@ -4505,6 +5182,40 @@ function renderGeneratedSeatingPlan(
 
             if (assignment) {
 
+  const subject =
+    String(
+      assignment.studentSubject ||
+      assignment.subject ||
+      assignment.student?.subject ||
+      ""
+    ).trim();
+
+
+  const subjectClass =
+    subject
+      ? `seat-subject-${subject
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")}`
+      : "seat-subject-unknown";
+
+
+  html += `
+    <td class="${subjectClass}">
+      <span class="seat-assignment-name">
+        ${escapeSeatingHtml(
+          assignment.studentName
+        )}
+      </span>
+
+      <span class="seat-assignment-id">
+        ${escapeSeatingHtml(
+          assignment.studentNumber
+        )}
+      </span>
+    </td>
+  `;
+
+} else {
               html += `
                 <td>
                   <span class="seat-assignment-name">
@@ -4980,6 +5691,8 @@ function confirmFinalizeSeatingPlan() {
     plans
   );
 
+  updateDashboardStats();
+
 
   exam.seatingPlanStatus =
     "Finalized";
@@ -5169,6 +5882,8 @@ if (roomForm) {
       rooms.push(room);
 
       saveRooms(rooms);
+      updateDashboardStats();
+
 
 
       roomForm.reset();
@@ -5259,6 +5974,7 @@ if (roomList) {
 
 
       renderRooms();
+      updateDashboardStats();
 
       renderExaminations();
     }
@@ -5409,6 +6125,15 @@ if (studentForm) {
             .value
             .trim(),
 
+        subject:
+          document
+            .getElementById(
+              "studentSubject"
+            )
+            .value
+            .trim(),
+
+
         section:
           document
             .getElementById(
@@ -5440,6 +6165,7 @@ if (studentForm) {
 
 
       renderStudents();
+      updateDashboardStats();
     }
   );
 }
@@ -5486,6 +6212,7 @@ if (studentList) {
           ? studentSearch.value
           : ""
       );
+      updateDashboardStats();
     }
   );
 }
@@ -5575,6 +6302,17 @@ window.addEventListener(
       window.location.hash.slice(1),
       false
     );
+    updateDashboardStats();
+
+    window.addEventListener("storage", (event) => {
+  if (
+    event.key === "examSeatStudents" ||
+    event.key === "examSeatRooms" ||
+    event.key === "examSeatSeatingPlans"
+  ) {
+    updateDashboardStats();
+  }
+});
   }
 );
 
@@ -5591,4 +6329,21 @@ populateSeatingExamSelect();
 showTeacherView(
   window.location.hash.slice(1),
   false
+);
+
+/* =========================================================
+   STEP 5 — LOGOUT
+   ========================================================= */
+
+function logoutExamSeat() {
+
+  localStorage.removeItem(
+    "examSeatSession"
+  );
+
+  window.location.replace(
+    "index.html"
+  );
+
+}
 );

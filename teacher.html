@@ -8,6 +8,14 @@
   <div class="app-shell"><aside class="sidebar" id="teacherSidebar" aria-label="Teacher navigation"><a class="brand" href="#dashboard" data-view="dashboard"><span class="brand-mark" aria-hidden="true"><i></i><b>✓</b></span><span><strong>Exam</strong>Seat</span></a><div class="role-badge">Teacher workspace</div><p class="nav-label">Workspace</p>
     <nav class="nav-links"><a class="nav-link active" href="#dashboard" data-view="dashboard"><span>▦</span>Dashboard</a><a class="nav-link" href="#examinations" data-view="examinations"><span>▤</span>Examinations</a><a class="nav-link" href="#students" data-view="students"><span>♙</span>Students</a><a class="nav-link" href="#rooms" data-view="rooms"><span>▥</span>Rooms</a><a class="nav-link" href="#seating-plans" data-view="seating-plans"><span>▧</span>Seating Plans</a></nav>
     <a class="switch-role" href="index.html">⇄ Switch role</a><div class="sidebar-footer"><span class="status-dot"></span>ST1 Prototype</div></aside>
+    <div class="page-area"><header class="topbar"><button class="menu-button" id="menuButton" type="button" aria-label="Open navigation" aria-expanded="false">☰</button><div><p class="eyebrow">Teacher workspace</p><h1 id="pageTitle">Dashboard</h1></div><span class="profile-button" aria-label="Teacher">T</span><button
+  type="button"
+  class="button button-secondary"
+  onclick="logoutExamSeat()"
+>
+  Logout
+</button></header><main class="main-content">
+<section class="screen active" id="dashboard" data-title="Dashboard"><div class="hero-row"><div><p class="eyebrow">Overview</p><h2>Plan every exam with confidence.</h2><p class="muted">Create exams, prepare rooms, and review seating plans in one workspace.</p></div><button class="button button-primary" type="button" data-go-to="create-examination">+ Create examination</button></div><div class="stats-grid"><article class="stat-card"><span class="stat-icon blue">♙</span><div><p>Students</p><strong id="dashboardStudentCount">0</strong><small id="dashboardStudentMeta">Ready to assign</small></div></article><article class="stat-card"><span class="stat-icon blue">▥</span><div><p>Rooms</p><strong id="dashboardRoomCount">0</strong><small id="dashboardRoomMeta">Not configured</small></div></article><article class="stat-card"><span class="stat-icon green">✓</span><div><p>Available seats</p><strong id="dashboardAvailableSeats">0</strong><small id="dashboardSeatMeta">Awaiting setup</small></div></article><article class="stat-card"><span class="stat-icon red">!</span><div><p>Conflicts</p><strong id="dashboardConflictCount">0</strong><small id="dashboardConflictMeta">No plan generated</small></div></article></div><article class="panel"><div class="panel-heading"><div><h3>Getting started</h3><p>Complete the setup before generating a seating plan.</p></div></div><ol class="checklist"><li><span class="step-number">1</span><span><strong>Create an examination</strong><small>Set the name, date, and duration.</small></span><button class="text-button" data-go-to="examinations">Open</button></li><li><span class="step-number">2</span><span><strong>Add students and rooms</strong><small>Prepare candidates and capacity.</small></span><button class="text-button" data-go-to="students">Open</button></li><li><span class="step-number">3</span><span><strong>Generate seating</strong><small>Review allocations and conflicts.</small></span><button class="text-button" data-go-to="seating-plans">Open</button></li></ol></article></section>
     <div class="page-area"><header class="topbar"><button class="menu-button" id="menuButton" type="button" aria-label="Open navigation" aria-expanded="false">☰</button><div><p class="eyebrow">Teacher workspace</p><h1 id="pageTitle">Dashboard</h1></div><span class="profile-button" aria-label="Teacher">T</span></header><main class="main-content">
 <section class="screen active" id="dashboard" data-title="Dashboard"><div class="hero-row"><div><p class="eyebrow">Overview</p><h2>Plan every exam with confidence.</h2><p class="muted">Create exams, prepare rooms, and review seating plans in one workspace.</p></div><button class="button button-primary" type="button" data-go-to="create-examination">+ Create examination</button></div><div class="stats-grid"><article class="stat-card"><span class="stat-icon blue">♙</span><div><p>Students</p><strong>0</strong><small>Ready to assign</small></div></article><article class="stat-card"><span class="stat-icon blue">▥</span><div><p>Rooms</p><strong>0</strong><small>Not configured</small></div></article><article class="stat-card"><span class="stat-icon green">✓</span><div><p>Available seats</p><strong>0</strong><small>Awaiting setup</small></div></article><article class="stat-card"><span class="stat-icon red">!</span><div><p>Conflicts</p><strong>0</strong><small>No plan generated</small></div></article></div><article class="panel"><div class="panel-heading"><div><h3>Getting started</h3><p>Complete the setup before generating a seating plan.</p></div></div><ol class="checklist"><li><span class="step-number">1</span><span><strong>Create an examination</strong><small>Set the name, date, and duration.</small></span><button class="text-button" data-go-to="examinations">Open</button></li><li><span class="step-number">2</span><span><strong>Add students and rooms</strong><small>Prepare candidates and capacity.</small></span><button class="text-button" data-go-to="students">Open</button></li><li><span class="step-number">3</span><span><strong>Generate seating</strong><small>Review allocations and conflicts.</small></span><button class="text-button" data-go-to="seating-plans">Open</button></li></ol></article></section>
       <section class="screen" id="examinations" data-title="Examinations" hidden><div class="section-heading"><div><p class="eyebrow">Configuration</p><h2>Examinations</h2><p class="muted">Create and manage the exam details used in your seating plans.</p></div><button class="button button-primary" type="button" data-go-to="create-examination">+ Create Examination</button></div><p class="success-banner" id="examinationSuccess" hidden aria-live="polite"></p><div class="examination-list" id="examinationList" aria-live="polite"></div><article class="panel empty-table" id="examinationEmpty"><span class="empty-icon">▤</span><h3>No examinations yet</h3><p>Create your first examination to start preparing the seating plan.</p><button class="button button-primary" type="button" data-go-to="create-examination">+ Create Examination</button></article></section>
@@ -26,6 +34,31 @@
       </p>
     </div>
 
+    <div class="student-import-actions">
+
+  <button
+    class="button button-primary"
+    type="button"
+    data-go-to="add-student"
+  >
+    + Add Student
+  </button>
+
+  <label
+    class="button button-secondary"
+    for="studentJsonFile"
+  >
+    Import JSON
+  </label>
+
+  <input
+    id="studentJsonFile"
+    type="file"
+    accept=".json,application/json"
+    hidden
+  >
+
+</div>
     <button
       class="button button-primary"
       type="button"
@@ -228,6 +261,28 @@
         ></small>
 
       </label>
+
+      <!-- SUBJECT -->
+
+<label for="studentSubject">
+
+  Subject
+  <span class="required-mark">*</span>
+
+  <input
+    id="studentSubject"
+    name="subject"
+    type="text"
+    placeholder="e.g. Mathematics"
+    required
+  >
+
+  <small
+    class="field-error"
+    id="studentSubjectError"
+  ></small>
+
+</label>
 
 
       <!-- OPTIONAL SECTION -->
@@ -709,6 +764,29 @@
 
   <section id="seatingPlanPreview" hidden>
     <div class="section-heading seating-preview-heading">
+
+  <div>
+    <p class="eyebrow">Generated allocation</p>
+
+    <h2 id="seatingPreviewTitle">
+      Seating Plan
+    </h2>
+
+    <p
+      class="muted"
+      id="seatingPreviewMeta"
+    ></p>
+  </div>
+
+  <button
+    class="button button-secondary"
+    id="printSeatingButton"
+    type="button"
+  >
+    🖨 Print Seating Plan
+  </button>
+
+</div>
       <div>
         <p class="eyebrow">Generated allocation</p>
         <h2 id="seatingPreviewTitle">Seating Plan</h2>
@@ -858,5 +936,81 @@
 </div>
 
 <div class="overlay" id="overlay" hidden></div>
+    <script>
+      (function () {
+
+        const savedSession =
+          localStorage.getItem(
+            "examSeatSession"
+          );
+
+        if (!savedSession) {
+
+          window.location.href =
+            "index.html";
+
+          return;
+
+        }
+
+        try {
+
+          const session =
+            JSON.parse(
+              savedSession
+            );
+
+          if (
+            !session ||
+            session.role !==
+              "teacher"
+          ) {
+
+            localStorage.removeItem(
+              "examSeatSession"
+            );
+
+            window.location.href =
+              "index.html";
+
+          }
+
+        } catch (error) {
+
+          localStorage.removeItem(
+            "examSeatSession"
+          );
+
+          window.location.href =
+            "index.html";
+
+        }
+
+      })();
+    </script>
+
+    <script src="seating-algorithm.js"></script>
+    <script src="teacher.js"></script>
+    <script>
+  window.addEventListener(
+    "pageshow",
+    function () {
+
+      const session =
+        localStorage.getItem(
+          "examSeatSession"
+        );
+
+      if (!session) {
+
+        window.location.replace(
+          "index.html"
+        );
+
+      }
+
+    }
+  );
+</script>
 <script src="teacher.js"></script>
 </body></html>
