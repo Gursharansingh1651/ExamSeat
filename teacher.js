@@ -148,6 +148,11 @@ const finalizeModalConflicts =
 const seatingPlanPreview =
   document.getElementById("seatingPlanPreview");
 
+const printSeatingButton =
+  document.getElementById(
+    "printSeatingButton"
+  );
+
 const seatingPlanEmpty =
   document.getElementById("seatingPlanEmpty");
 
@@ -2683,6 +2688,25 @@ if (studentJsonFile) {
 
 }
 
+function printSeatingPlan() {
+
+  if (
+    !seatingPlanPreview ||
+    seatingPlanPreview.hidden
+  ) {
+
+    alert(
+      "Generate a seating plan before printing."
+    );
+
+    return;
+
+  }
+
+  window.print();
+
+}
+
 
 /* =========================================================
    SEATING PLAN EVENTS
@@ -2765,6 +2789,15 @@ if (seatingRegenerateButton) {
     "click",
     generateSeatingPlan
   );
+}
+
+if (printSeatingButton) {
+
+  printSeatingButton.addEventListener(
+    "click",
+    printSeatingPlan
+  );
+
 }
 
 
