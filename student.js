@@ -205,6 +205,19 @@ function normalise(
 }
 
 
+function getSeatingRecords() {
+  try {
+    const publishedRecords = JSON.parse(localStorage.getItem("examSeatPublishedSeating"));
+    return Array.isArray(publishedRecords) && publishedRecords.length ? publishedRecords : mockSeatingRecords;
+  } catch (error) {
+    return mockSeatingRecords;
+  }
+}
+
+function normalise(value) {
+  return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
 function showStudentView(viewId, updateHash = true) {
   const requestedView = document.getElementById(viewId);
   const view = requestedView && (requestedView.id !== "seat-visualisation" || activeSeatRecord) ? requestedView : document.getElementById("home");

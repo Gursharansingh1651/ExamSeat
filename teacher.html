@@ -16,6 +16,8 @@
   Logout
 </button></header><main class="main-content">
 <section class="screen active" id="dashboard" data-title="Dashboard"><div class="hero-row"><div><p class="eyebrow">Overview</p><h2>Plan every exam with confidence.</h2><p class="muted">Create exams, prepare rooms, and review seating plans in one workspace.</p></div><button class="button button-primary" type="button" data-go-to="create-examination">+ Create examination</button></div><div class="stats-grid"><article class="stat-card"><span class="stat-icon blue">♙</span><div><p>Students</p><strong id="dashboardStudentCount">0</strong><small id="dashboardStudentMeta">Ready to assign</small></div></article><article class="stat-card"><span class="stat-icon blue">▥</span><div><p>Rooms</p><strong id="dashboardRoomCount">0</strong><small id="dashboardRoomMeta">Not configured</small></div></article><article class="stat-card"><span class="stat-icon green">✓</span><div><p>Available seats</p><strong id="dashboardAvailableSeats">0</strong><small id="dashboardSeatMeta">Awaiting setup</small></div></article><article class="stat-card"><span class="stat-icon red">!</span><div><p>Conflicts</p><strong id="dashboardConflictCount">0</strong><small id="dashboardConflictMeta">No plan generated</small></div></article></div><article class="panel"><div class="panel-heading"><div><h3>Getting started</h3><p>Complete the setup before generating a seating plan.</p></div></div><ol class="checklist"><li><span class="step-number">1</span><span><strong>Create an examination</strong><small>Set the name, date, and duration.</small></span><button class="text-button" data-go-to="examinations">Open</button></li><li><span class="step-number">2</span><span><strong>Add students and rooms</strong><small>Prepare candidates and capacity.</small></span><button class="text-button" data-go-to="students">Open</button></li><li><span class="step-number">3</span><span><strong>Generate seating</strong><small>Review allocations and conflicts.</small></span><button class="text-button" data-go-to="seating-plans">Open</button></li></ol></article></section>
+    <div class="page-area"><header class="topbar"><button class="menu-button" id="menuButton" type="button" aria-label="Open navigation" aria-expanded="false">☰</button><div><p class="eyebrow">Teacher workspace</p><h1 id="pageTitle">Dashboard</h1></div><span class="profile-button" aria-label="Teacher">T</span></header><main class="main-content">
+<section class="screen active" id="dashboard" data-title="Dashboard"><div class="hero-row"><div><p class="eyebrow">Overview</p><h2>Plan every exam with confidence.</h2><p class="muted">Create exams, prepare rooms, and review seating plans in one workspace.</p></div><button class="button button-primary" type="button" data-go-to="create-examination">+ Create examination</button></div><div class="stats-grid"><article class="stat-card"><span class="stat-icon blue">♙</span><div><p>Students</p><strong>0</strong><small>Ready to assign</small></div></article><article class="stat-card"><span class="stat-icon blue">▥</span><div><p>Rooms</p><strong>0</strong><small>Not configured</small></div></article><article class="stat-card"><span class="stat-icon green">✓</span><div><p>Available seats</p><strong>0</strong><small>Awaiting setup</small></div></article><article class="stat-card"><span class="stat-icon red">!</span><div><p>Conflicts</p><strong>0</strong><small>No plan generated</small></div></article></div><article class="panel"><div class="panel-heading"><div><h3>Getting started</h3><p>Complete the setup before generating a seating plan.</p></div></div><ol class="checklist"><li><span class="step-number">1</span><span><strong>Create an examination</strong><small>Set the name, date, and duration.</small></span><button class="text-button" data-go-to="examinations">Open</button></li><li><span class="step-number">2</span><span><strong>Add students and rooms</strong><small>Prepare candidates and capacity.</small></span><button class="text-button" data-go-to="students">Open</button></li><li><span class="step-number">3</span><span><strong>Generate seating</strong><small>Review allocations and conflicts.</small></span><button class="text-button" data-go-to="seating-plans">Open</button></li></ol></article></section>
       <section class="screen" id="examinations" data-title="Examinations" hidden><div class="section-heading"><div><p class="eyebrow">Configuration</p><h2>Examinations</h2><p class="muted">Create and manage the exam details used in your seating plans.</p></div><button class="button button-primary" type="button" data-go-to="create-examination">+ Create Examination</button></div><p class="success-banner" id="examinationSuccess" hidden aria-live="polite"></p><div class="examination-list" id="examinationList" aria-live="polite"></div><article class="panel empty-table" id="examinationEmpty"><span class="empty-icon">▤</span><h3>No examinations yet</h3><p>Create your first examination to start preparing the seating plan.</p><button class="button button-primary" type="button" data-go-to="create-examination">+ Create Examination</button></article></section>
       <section class="screen" id="create-examination" data-title="Create Examination" hidden><div class="form-page-heading"><button class="back-button" id="cancelCreateTop" type="button">← Back to examinations</button><p class="eyebrow">New examination</p><h2>Create examination</h2><p class="muted">Add the core details now. Students, rooms, rules, and seating plans can be associated later.</p></div><form class="panel examination-form" id="examinationForm" novalidate><div class="form-grid"><label for="examName">Examination Name <span class="required-mark">*</span><input id="examName" name="name" type="text" placeholder="e.g. Mid-Term Examination" required><small class="field-error" id="examNameError"></small></label><label for="examSubject">Subject <span class="required-mark">*</span><input id="examSubject" name="subject" type="text" placeholder="e.g. Data Structures" required><small class="field-error" id="examSubjectError"></small></label><label for="examDate">Date <span class="required-mark">*</span><input id="examDate" name="date" type="date" required><small class="field-error" id="examDateError"></small></label><label for="examStartTime">Start Time <span class="required-mark">*</span><input id="examStartTime" name="startTime" type="time" required><small class="field-error" id="examStartTimeError"></small></label><label for="examDuration">Duration <span class="required-mark">*</span><input id="examDuration" name="duration" type="text" placeholder="e.g. 2 hours" required><small class="field-error" id="examDurationError"></small></label><label class="form-full" for="examDescription">Description <span class="optional-label">Optional</span><textarea id="examDescription" name="description" rows="4" placeholder="Add any instructions or notes for this examination."></textarea></label></div><p class="form-message" id="examFormMessage" aria-live="polite"></p><div class="form-actions"><button class="button button-secondary" id="cancelCreate" type="button">Cancel</button><button class="button button-primary" type="submit">Create Examination</button></div></form></section>
       <section class="screen" id="students" data-title="Students" hidden>
@@ -57,6 +59,13 @@
   >
 
 </div>
+    <button
+      class="button button-primary"
+      type="button"
+      data-go-to="add-student"
+    >
+      + Add Student
+    </button>
 
   </div>
 
@@ -778,6 +787,12 @@
   </button>
 
 </div>
+      <div>
+        <p class="eyebrow">Generated allocation</p>
+        <h2 id="seatingPreviewTitle">Seating Plan</h2>
+        <p class="muted" id="seatingPreviewMeta"></p>
+      </div>
+    </div>
 
     <!-- REVIEW SUMMARY -->
     <article class="panel seating-review-panel" id="seatingReviewPanel">
@@ -997,4 +1012,5 @@
     }
   );
 </script>
+<script src="teacher.js"></script>
 </body></html>

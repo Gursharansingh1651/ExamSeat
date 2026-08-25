@@ -2371,6 +2371,7 @@ if (examinationList) {
          ================================= */
 
       const roomButton =
+      const button =
         event.target.closest(
           ".examination-manage-rooms"
         );
@@ -2459,6 +2460,13 @@ if (examinationList) {
 
       updateDashboardStats();
 
+      if (!button) {
+        return;
+      }
+
+      openExaminationRoomWorkspace(
+        button.dataset.examId
+      );
     }
   );
 }
@@ -5208,6 +5216,23 @@ function renderGeneratedSeatingPlan(
   `;
 
 } else {
+              html += `
+                <td>
+                  <span class="seat-assignment-name">
+                    ${escapeSeatingHtml(
+                      assignment.studentName
+                    )}
+                  </span>
+
+                  <span class="seat-assignment-id">
+                    ${escapeSeatingHtml(
+                      assignment.studentNumber
+                    )}
+                  </span>
+                </td>
+              `;
+
+            } else {
 
               html += `
                 <td>
@@ -6321,3 +6346,4 @@ function logoutExamSeat() {
   );
 
 }
+);
