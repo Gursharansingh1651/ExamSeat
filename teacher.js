@@ -5141,23 +5141,40 @@ function renderGeneratedSeatingPlan(
 
             if (assignment) {
 
-              html += `
-                <td>
-                  <span class="seat-assignment-name">
-                    ${escapeSeatingHtml(
-                      assignment.studentName
-                    )}
-                  </span>
+  const subject =
+    String(
+      assignment.studentSubject ||
+      assignment.subject ||
+      assignment.student?.subject ||
+      ""
+    ).trim();
 
-                  <span class="seat-assignment-id">
-                    ${escapeSeatingHtml(
-                      assignment.studentNumber
-                    )}
-                  </span>
-                </td>
-              `;
 
-            } else {
+  const subjectClass =
+    subject
+      ? `seat-subject-${subject
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")}`
+      : "seat-subject-unknown";
+
+
+  html += `
+    <td class="${subjectClass}">
+      <span class="seat-assignment-name">
+        ${escapeSeatingHtml(
+          assignment.studentName
+        )}
+      </span>
+
+      <span class="seat-assignment-id">
+        ${escapeSeatingHtml(
+          assignment.studentNumber
+        )}
+      </span>
+    </td>
+  `;
+
+} else {
 
               html += `
                 <td>
