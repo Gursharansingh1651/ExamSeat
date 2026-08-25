@@ -1414,3 +1414,40 @@
   align-items: center;
   justify-content: center;
 }
+
+/* Subject-based seating colors */
+
+.seating-table td.seat-subject-maths {
+  background: #9cd1f9 !important;
+  border-color: #93c5fd !important;
+}
+
+.seating-table td.seat-subject-dsa {
+  background: #f3ec89 !important;
+  border-color: #ceef86 !important;
+}
+
+.seating-table td.seat-subject-c {
+  background: #fef3c7 !important;
+  border-color: #fcd34d !important;
+}
+
+.seating-table td.seat-subject-java {
+  background: #fce7f3 !important;
+  border-color: #f9a8d4 !important;
+}
+
+.seating-table td.seat-subject-english {
+  background: #cffafe !important;
+  border-color: #67e8f9 !important;
+}
+
+.seating-table td.seat-subject-physics {
+  background: #ede9fe !important;
+  border-color: #c4b5fd !important;
+}
+
+.seating-table td.seat-subject-bee {
+  background: #ffedd5 !important;
+  border-color: #fdba74 !important;
+}
