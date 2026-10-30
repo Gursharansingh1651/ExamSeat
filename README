@@ -1,0 +1,191 @@
+# ExamSeat — Dynamic Exam Seating & Conflict Resolver
+
+ExamSeat helps teachers manage examinations and create seating plans that reduce the chance of nearby students sharing both the same subject and section.
+
+This version keeps the existing HTML, CSS, and Vanilla JavaScript interface and adds a Node.js/Express backend with MongoDB persistence, JWT authentication, and bcrypt password hashing. The seating algorithm still runs in the browser; the generated plan is then saved to MongoDB through the API.
+
+## Features
+
+- Student and teacher account registration and login.
+- Teacher-only management of students, rooms, examinations, and seating plans.
+- Import student records from a JSON array.
+- Standard grid rooms and bench-style rooms with calculated capacities.
+- Assign students and rooms to examinations, including room time-conflict checks.
+- Generate, review, finalize, and print seating plans.
+- Check seating plans for same-subject-and-section adjacency, missing or duplicate students, duplicate seats, invalid rooms, and room-capacity problems.
+- Save application records in MongoDB so they are available beyond one browser's Local Storage.
+
+### Seating constraint
+
+The current algorithm avoids seating two students next to one another when they have **both** the same subject and the same section. It checks the four direct neighbours (front, back, left, and right); diagonal seats do not count as adjacent. If the constraint cannot be satisfied, the plan can be shown for review, but a plan with conflicts or unassigned students cannot be finalized.
+
+## Technology
+
+| Part | Technology |
+| --- | --- |
+| Browser interface | HTML, CSS, Vanilla JavaScript |
+| Backend/API | Node.js and Express.js |
+| Database and models | MongoDB and Mongoose |
+| Password protection | bcryptjs |
+| API authentication | JSON Web Tokens (JWT) |
+
+Vanilla JavaScript remains the frontend language. Express is the server framework; it did not replace the browser UI with a frontend framework.
+
+## Requirements
+
+- Node.js with npm.
+- A running MongoDB server, either local MongoDB or a MongoDB Atlas connection string.
+
+MongoDB Compass is a desktop viewer for MongoDB. It can inspect a database, but a local MongoDB server (or Atlas cluster) must also be running for the application to connect.
+
+## Run locally
+
+1. Open a terminal in the project folder (the folder containing `package.json`).
+2. Install dependencies:
+
+   ```sh
+   npm install
+   ```
+
+   In Windows PowerShell, if `npm` is blocked by the script execution policy, use:
+
+   ```powershell
+   npm.cmd install
+   ```
+
+3. Create a `.env` file in the project root with your own settings:
+
+   ```dotenv
+   MONGODB_URI=mongodb://127.0.0.1:27017/examseat
+   JWT_SECRET=replace-with-a-long-random-secret
+   JWT_EXPIRES_IN=7d
+   PORT=3000
+   TEACHER_REGISTRATION_CODE=choose-a-private-registration-code
+   ```
+
+   For MongoDB Atlas, set `MONGODB_URI` to the connection string provided by Atlas. Keep `.env` private and do not commit it or share its values.
+
+4. Start MongoDB (or make sure the Atlas cluster is available), then start ExamSeat:
+
+   ```sh
+   npm start
+   ```
+
+   In Windows PowerShell, use `npm.cmd start` if `npm start` is blocked.
+
+5. Open [http://localhost:3000](http://localhost:3000). The server must stay running while you use the site.
+
+The database name in the local example is `examseat`. MongoDB creates the database and collections when the application first saves records. In Compass, connect to `mongodb://localhost:27017` and look for that database after registering an account or adding project data.
+
+To restart the server automatically when server files change, run `npm run dev` (or `npm.cmd run dev` in PowerShell).
+
+## Accounts and authentication
+
+Use **Create an account** on the login page to register. Passwords must be at least six characters. Choose `student` or `teacher`; teacher registration also requires the code configured as `TEACHER_REGISTRATION_CODE` in `.env`.
+
+Passwords are hashed with bcryptjs before being stored. The API does not return the password or its hash. On successful login, the API returns a JWT and account details. The browser stores the JWT in Local Storage and sends it with protected API requests as:
+
+```http
+Authorization: Bearer <your-token>
+```
+
+The JWT expiry is configured by `JWT_EXPIRES_IN` (seven days in the example).
+
+## API quick reference
+
+Base URL for local testing: `http://localhost:3000`
+
+| Method | Endpoint | Access | Purpose |
+| --- | --- | --- | --- |
+| `POST` | `/api/auth/signup` | Public | Create a student or teacher account |
+| `POST` | `/api/auth/login` | Public | Sign in and receive a JWT |
+| `GET` | `/api/auth/me` | Signed in | Get the signed-in account |
+| `GET` | `/api/students` | Signed in | List students |
+| `POST` | `/api/students` | Teacher | Create a student |
+| `PUT` / `DELETE` | `/api/students/:id` | Teacher | Update or delete a student |
+| `POST` | `/api/students/import` | Teacher | Import a JSON array of students |
+| `GET` | `/api/rooms` | Signed in | List rooms |
+| `POST` | `/api/rooms` | Teacher | Create a room |
+| `PUT` / `DELETE` | `/api/rooms/:id` | Teacher | Update or delete a room |
+| `GET` | `/api/examinations` | Signed in | List examinations |
+| `GET` | `/api/examinations/:id` | Signed in | Get one examination |
+| `POST` | `/api/examinations` | Teacher | Create an examination |
+| `PUT` / `DELETE` | `/api/examinations/:id` | Teacher | Update or delete an examination |
+| `PUT` | `/api/examinations/:id/students` | Teacher | Set the examination's student IDs |
+| `PUT` | `/api/examinations/:id/rooms` | Teacher | Set the examination's room IDs |
+| `GET` | `/api/seating-plans` | Signed in | List seating plans |
+| `GET` | `/api/seating-plans/:id` | Signed in | Get one seating plan |
+| `GET` | `/api/seating-plans/exam/:examId` | Signed in | Get the latest plan for an examination |
+| `POST` | `/api/seating-plans` | Teacher | Save a generated plan |
+| `PUT` | `/api/seating-plans/:id/finalize` | Teacher | Finalize a plan |
+| `DELETE` | `/api/seating-plans/:id` | Teacher | Delete a plan |
+
+All endpoints except signup and login require a valid JWT unless otherwise noted. Read endpoints allow either signed-in role; write endpoints require a teacher account. Requests and responses use JSON. Invalid or missing authentication normally returns `401`; an authenticated student attempting a teacher-only action receives `403`.
+
+### Postman: test login and a protected request
+
+1. Keep the server running and create a teacher account in the website, using the teacher registration code from `.env`.
+2. In Postman, make a `POST` request to `http://localhost:3000/api/auth/login`.
+3. Select **Body → raw → JSON** and send your account's identifier and password:
+
+   ```json
+   {
+     "identifier": "your-teacher-email-or-id",
+     "password": "your-password"
+   }
+   ```
+
+4. A successful response has status `200` and contains `token` and `account`. In the response body, copy only the text value of `token` (without quotation marks).
+5. Create a `GET` request to `http://localhost:3000/api/students`. Under **Authorization**, choose **Bearer Token** and paste the copied token in the Token field. Select **Send**; a successful request returns status `200` and a `students` array.
+6. To test create/read/update/delete, make a `POST` request to `http://localhost:3000/api/students`, keep the same Bearer token, and send this JSON under **Body → raw → JSON**:
+
+   ```json
+   {
+     "name": "Postman Test Student",
+     "studentId": "TEST-001",
+     "subject": "Maths",
+     "section": "A",
+     "course": "Example Course"
+   }
+   ```
+
+   A successful create returns status `201` and a `student` object. Copy its `_id` from the response. Send `GET /api/students` to confirm it appears. Then send `PUT http://localhost:3000/api/students/<copied-id>` with the same JSON (you can change the name), and check for status `200`. Finally send `DELETE http://localhost:3000/api/students/<copied-id>` and check for status `200`; send GET again to confirm the test record is gone. Use a dummy record so you do not delete real student data.
+7. To check access control, send the GET request without a token (expected `401`). Then try a teacher-only write with a student token (expected `403`).
+
+Do not paste passwords, JWTs, or `.env` values into reports or public chats.
+
+## MongoDB data
+
+Mongoose models store accounts, students, rooms, examinations, and seating plans in the database named by `MONGODB_URI`. Account responses omit the password hash. A generated seating plan contains its room layouts, seat assignments, constraints, status, and any unassigned student IDs.
+
+## Project layout
+
+```text
+server/
+  index.js              Express app, MongoDB connection, and static-file hosting
+  middleware/auth.js    JWT verification and teacher-role check
+  models/                Mongoose schemas
+  routes/                Authentication and application API routes
+auth.js                  Browser signup/login and JWT storage
+teacher.js               Teacher interface and API integration
+student.js               Student interface and API integration
+seating-algorithm.js     Browser-side seating-plan generation and checks
+index.html               Login and account registration
+teacher.html             Teacher dashboard
+student.html             Student portal
+package.json             Scripts and dependencies
+```
+
+## Development notes
+
+- `npm start` runs `server/index.js`.
+- `npm run dev` runs the server with Node's watch mode.
+- Seating-plan generation and review logic remain in the browser. The API saves and retrieves the resulting plans in MongoDB.
+- The `test` script in `package.json` is currently a placeholder; no automated test suite is configured there.
+
+## Project phases
+
+- **ST1:** Browser prototype, seating algorithm, and Local Storage-based persistence.
+- **ST2:** Express API, MongoDB/Mongoose persistence, bcrypt password hashing, JWT authentication, and frontend integration with the API.
+
+The ST2 version continues to use Vanilla JavaScript in the browser; it is not a React application.
